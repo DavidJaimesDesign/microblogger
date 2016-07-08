@@ -17,14 +17,40 @@ class MicroBlogger
 	end
 
 	def dm(target, message)
-		screen_names = @client .followers.collect { |follower| @client.user(follower).screen_name}
+		screen_names = @client.followers.collect { |follower| @client.user(follower).screen_name}
 		puts "Trying to send #{target} this direct message"
 		puts message
 		message = "d @#{target} #{message}"
 		screen_names.each do |screen_name|
 			if screen_name == target 
 				tweet(message)
+			else
+				puts "they are not yer friends"
 			end
+		end
+	end
+
+	def followers_list
+		screen_names = Array.new
+		@client.followers.collect do |follower|
+			screen_names << @client.user(follower).screen_name
+		end
+		screen_names
+	end
+
+	def spam_my_followers(message)
+		puts "Trying to send all followers this direct message"
+		puts message
+		followers_list.each do |follower|
+			message = "d @#{follower} #{message}"
+			tweet(message)
+		end
+	end
+
+	def everyones_last_tweet
+		friends = @client.friends
+		friends.each do |friend|
+			puts ""
 		end
 	end
 
@@ -40,6 +66,8 @@ class MicroBlogger
 				when 'q' then puts "Client Terminated"
 				when 't' then tweet(parts[1..-1].join(" "))
 				when 'dm' then dm(parts[1], parts[2..-1].join(" "))
+				when 'spam' then spam_my_followers(parts[1..-1].join(" "))
+				when 'elt' then everyones_last_tweet
 				else
 					puts "Error command #{command} not recognized...sorry"
 			end
